@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ultimate Task Manager</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- Cinematic Background -->
+  <div class="scene" aria-hidden="true">
+    <div class="scene__aurora scene__aurora--violet"></div>
+    <div class="scene__aurora scene__aurora--cyan"></div>
+    <div class="scene__aurora scene__aurora--ember"></div>
+
+    <div class="scene__beam"></div>
+    <div class="scene__grid"></div>
+    <div class="scene__noise"></div>
+    <div class="scene__vignette"></div>
+  </div>
+
+  <main class="app">
+
+    <!-- App Chrome -->
+    <div class="app__chrome" aria-hidden="true">
+      <div class="app__dots">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+
+      <div class="app__state">
+        Task Studio • Ultimate Edition
+      </div>
+
+      <div class="app__pill">
+        Live
+      </div>
+    </div>
+
+    <!-- Header -->
+    <header class="app__header">
+      <div class="hero__badge">
+        Premium Productivity Dashboard
+      </div>
+
+      <h1>
+        مدير المهام
+        <span>السينمائي</span>
+      </h1>
+
+      <p>
+        تجربة متقدمة لإدارة المهام مع بحث فوري، تصفية ذكية، ترتيب ديناميكي،
+        مؤشر إنجاز بصري، وحفظ تلقائي داخل المتصفح.
+      </p>
+
+      <div class="hero__chips">
+        <span class="chip">بحث فوري</span>
+        <span class="chip">تصفية ذكية</span>
+        <span class="chip">مؤشر إنجاز</span>
+        <span class="chip">حفظ تلقائي</span>
+      </div>
+    </header>
+
+    <!-- Add Task Form -->
+    <form id="task-form" class="panel task-form" novalidate>
+      <div class="form-group">
+        <label for="task-title">عنوان المهمة</label>
+        <input
+          id="task-title"
+          type="text"
+          placeholder="اكتب مهمة جديدة..."
+          autocomplete="off"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="task-priority">الأولوية</label>
+        <select id="task-priority">
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn--primary">
+        <span class="btn__icon">+</span>
+        <span>إضافة المهمة</span>
+      </button>
+    </form>
+
+    <!-- Messages -->
+    <div
+      id="message-area"
+      class="message-area"
+      role="status"
+      aria-live="polite"
+      hidden
+    ></div>
+
+    <!-- Loading -->
+    <div
+      id="loading-area"
+      class="loading-area"
+      role="status"
+      aria-live="polite"
+      hidden
+    >
+      جارٍ التحميل ...
+    </div>
+
+    <!-- Dashboard -->
+    <section class="dashboard">
+
+      <!-- Stats + Progress -->
+      <div class="panel stats-panel">
+        <div class="section-head">
+          <h2>نظرة عامة</h2>
+          <p>إحصائيات لحظية مع نسبة الإنجاز الكلية</p>
+        </div>
+
+        <div class="overview-grid">
+          <div class="stats" aria-label="إحصائيات المهام">
+            <article class="stats__card stats__card--total">
+              <span class="stats__label">العدد الإجمالي</span>
+              <strong id="stats-total">0</strong>
+              <span class="stats__hint">كل المهام المسجلة</span>
+            </article>
+
+            <article class="stats__card stats__card--completed">
+              <span class="stats__label">المهام المكتملة</span>
+              <strong id="stats-completed">0</strong>
+              <span class="stats__hint">ما تم إنجازه</span>
+            </article>
+
+            <article class="stats__card stats__card--remaining">
+              <span class="stats__label">المهام المتبقية</span>
+              <strong id="stats-remaining">0</strong>
+              <span class="stats__hint">ما زال قيد العمل</span>
+            </article>
+          </div>
+
+          <div class="progress-ring" role="img" aria-label="نسبة الإنجاز الكلية">
+            <svg viewBox="0 0 120 120" aria-hidden="true">
+              <defs>
+                <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#8b5cf6"></stop>
+                  <stop offset="100%" stop-color="#22d3ee"></stop>
+                </linearGradient>
+              </defs>
+
+              <circle
+                class="progress-ring__bg"
+                cx="60"
+                cy="60"
+                r="52"
+              ></circle>
+
+              <circle
+                id="progress-ring-circle"
+                class="progress-ring__value"
+                cx="60"
+                cy="60"
+                r="52"
+              ></circle>
+            </svg>
+
+            <div class="progress-ring__label">
+              <strong id="progress-percent">0%</strong>
+              <span>نسبة الإنجاز</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="panel filters-panel">
+        <div class="section-head">
+          <h2>التصفية</h2>
+          <p>عرض المهام حسب الحالة</p>
+        </div>
+
+        <div id="filters" class="filters">
+          <button
+            type="button"
+            class="filter-btn is-active"
+            data-filter="all"
+            aria-pressed="true"
+          >
+            <span class="filter-btn__label">الكل</span>
+            <span class="filter-btn__count" data-filter-count>0</span>
+          </button>
+
+          <button
+            type="button"
+            class="filter-btn"
+            data-filter="completed"
+            aria-pressed="false"
+          >
+            <span class="filter-btn__label">المكتملة فقط</span>
+            <span class="filter-btn__count" data-filter-count>0</span>
+          </button>
+
+          <button
+            type="button"
+            class="filter-btn"
+            data-filter="pending"
+            aria-pressed="false"
+          >
+            <span class="filter-btn__label">غير المكتملة فقط</span>
+            <span class="filter-btn__count" data-filter-count>0</span>
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Tasks -->
+    <section class="panel tasks-panel">
+      <div class="section-head">
+        <h2>المهام</h2>
+        <p>بحث، ترتيب، إكمال، حذف، وتراجع</p>
+      </div>
+
+      <div class="toolbar">
+        <div class="toolbar__field toolbar__field--search">
+          <label for="search-input" class="sr-only">البحث في المهام</label>
+          <input
+            id="search-input"
+            type="search"
+            placeholder="ابحث في المهام..."
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="toolbar__field">
+          <label for="sort-select" class="sr-only">ترتيب المهام</label>
+          <select id="sort-select">
+            <option value="newest">الأحدث أولًا</option>
+            <option value="oldest">الأقدم أولًا</option>
+            <option value="priority">حسب الأولوية</option>
+          </select>
+        </div>
+
+        <button id="clear-completed" class="btn btn--ghost" type="button">
+          مسح المكتملة
+        </button>
+      </div>
+
+      <div id="celebration" class="celebration" hidden>
+        <span class="celebration__icon">🎉</span>
+        <div>
+          <strong>عمل رائع!</strong>
+          لقد أكملت جميع مهامك الحالية.
+        </div>
+      </div>
+
+      <ul id="tasks-list" class="tasks-list" aria-label="قائمة المهام"></ul>
+
+      <p id="empty-state" class="empty-state" hidden>
+        لا توجد مهام لعرضها.
+      </p>
+    </section>
+
+    <footer class="app__footer">
+      <span>يتم الحفظ تلقائيًا في هذا المتصفح</span>
+      <span class="footer-sep">•</span>
+      <span>اضغط <kbd>/</kbd> للانتقال إلى البحث</span>
+    </footer>
+
+  </main>
+
+  <!-- Undo Toast -->
+  <div
+    id="toast-area"
+    class="toast-area"
+    role="status"
+    aria-live="polite"
+    hidden
+  >
+    <span id="toast-message"></span>
+    <button id="toast-action" type="button" class="toast-action" hidden></button>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
