@@ -1,25 +1,21 @@
 const QUOTE_API_URL = "https://dummyjson.com/quotes/random";
 
-const LOCAL_QUOTES = [
-  {
-    text: "الإنجاز يبدأ بخطوة صغيرة اليوم.",
-    source: "اقتباس محلي"
-  },
-  {
-    text: "المهام عالية الأولوية تستحق تركيزًا عاليًا.",
-    source: "اقتباس محلي"
-  },
-  {
-    text: "ركّز على الأهم قبل المهم.",
-    source: "اقتباس محلي"
-  },
-  {
-    text: "التركيز الآن يعني راحة لاحقًا.",
-    source: "اقتباس محلي"
-  }
-];
+const LOCAL_QUOTES = {
+  ar: [
+    { text: "الإنجاز يبدأ بخطوة صغيرة اليوم.", source: "محلي" },
+    { text: "المهام عالية الأولوية تستحق تركيزًا عاليًا.", source: "محلي" },
+    { text: "ركّز على الأهم قبل المهم.", source: "محلي" },
+    { text: "التركيز الآن يعني راحة لاحقًا.", source: "محلي" }
+  ],
+  en: [
+    { text: "Progress starts with one small step today.", source: "local" },
+    { text: "High-priority work deserves high-priority focus.", source: "local" },
+    { text: "Do the important thing before the merely urgent.", source: "local" },
+    { text: "Focus now means ease later.", source: "local" }
+  ]
+};
 
-export async function fetchHighPriorityMessage(task) {
+export async function fetchHighPriorityMessage(task, lang = "en") {
   try {
     const remoteQuote = await fetchQuoteFromApi();
 
@@ -30,7 +26,7 @@ export async function fetchHighPriorityMessage(task) {
       taskTitle: task?.title ?? ""
     };
   } catch {
-    const localQuote = await fetchQuoteMock();
+    const localQuote = await fetchQuoteMock(lang);
 
     return {
       text: localQuote.text,
@@ -72,12 +68,14 @@ async function fetchQuoteFromApi() {
   }
 }
 
-function fetchQuoteMock() {
+function fetchQuoteMock(lang = "en") {
+  const pack = LOCAL_QUOTES[lang] || LOCAL_QUOTES.en;
+
   return new Promise(resolve => {
-    const randomIndex = Math.floor(Math.random() * LOCAL_QUOTES.length);
+    const randomIndex = Math.floor(Math.random() * pack.length);
 
     setTimeout(() => {
-      resolve(LOCAL_QUOTES[randomIndex]);
+      resolve(pack[randomIndex]);
     }, 700);
   });
 }

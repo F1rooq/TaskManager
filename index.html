@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ultimate Task Manager</title>
+  <title>TaskManager</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -17,89 +17,132 @@
 </head>
 <body>
 
-  <!-- Cinematic Background -->
   <div class="scene" aria-hidden="true">
+    <canvas id="scene-canvas" class="scene__canvas"></canvas>
+    <div class="scene__orb scene__orb--follow"></div>
     <div class="scene__aurora scene__aurora--violet"></div>
     <div class="scene__aurora scene__aurora--cyan"></div>
     <div class="scene__aurora scene__aurora--ember"></div>
-
     <div class="scene__beam"></div>
     <div class="scene__grid"></div>
     <div class="scene__noise"></div>
     <div class="scene__vignette"></div>
   </div>
 
+  <div id="name-modal" class="name-modal" hidden>
+    <form id="name-form" class="name-modal__card" autocomplete="off">
+      <div class="name-modal__mark" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </div>
+      <h2 id="name-modal-title" data-i18n="namePromptTitle">كيف نناديك؟</h2>
+      <p data-i18n="namePromptText">اكتب اسمك لتظهر تحية شخصية في كل زيارة.</p>
+      <label class="sr-only" for="user-name" data-i18n="namePlaceholder">اسمك</label>
+      <input
+        id="user-name"
+        type="text"
+        maxlength="32"
+        data-i18n-placeholder="namePlaceholder"
+        placeholder="اسمك"
+      />
+      <button type="submit" class="btn btn--primary">
+        <span data-i18n="nameSave">ابدأ</span>
+      </button>
+    </form>
+  </div>
+
   <main class="app">
 
-    <!-- App Chrome -->
-    <div class="app__chrome" aria-hidden="true">
-      <div class="app__dots">
-        <span></span>
-        <span></span>
-        <span></span>
+    <div class="app__chrome">
+      <div class="brand">
+        <span class="brand__mark" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+        </span>
+        <span class="brand__name" data-i18n="brand">TaskManager</span>
       </div>
 
-      <div class="app__state">
-        Task Studio • Ultimate Edition
-      </div>
+      <div class="app__controls">
+        <button
+          id="theme-toggle"
+          type="button"
+          class="control-btn"
+          data-i18n-aria="themeToLight"
+          aria-label="الوضع الفاتح"
+        >
+          <span class="control-btn__icon control-btn__icon--sun" aria-hidden="true">☀</span>
+          <span class="control-btn__icon control-btn__icon--moon" aria-hidden="true">☾</span>
+        </button>
 
-      <div class="app__pill">
-        Live
+        <button
+          id="lang-toggle"
+          type="button"
+          class="control-btn control-btn--lang"
+          data-i18n="languageToEn"
+        >
+          English
+        </button>
       </div>
     </div>
 
-    <!-- Header -->
     <header class="app__header">
-      <div class="hero__badge">
-        Premium Productivity Dashboard
-      </div>
+      <button id="greeting" class="greeting" type="button" data-i18n-title="nameChange">
+        مرحباً، ما خططك اليوم؟
+      </button>
 
       <h1>
-        مدير المهام
-        <span>السينمائي</span>
+        <span data-i18n="headline">مدير المهام</span>
+        <span class="headline-accent" data-i18n="headlineAccent">اليومي</span>
       </h1>
 
-      <p>
-        تجربة متقدمة لإدارة المهام مع بحث فوري، تصفية ذكية، ترتيب ديناميكي،
-        مؤشر إنجاز بصري، وحفظ تلقائي داخل المتصفح.
+      <p data-i18n="subtitle">
+        أضف مهامك، رتّبها حسب الأولوية، وتابع إنجازك في لوحة واحدة واضحة.
       </p>
 
       <div class="hero__chips">
-        <span class="chip">بحث فوري</span>
-        <span class="chip">تصفية ذكية</span>
-        <span class="chip">مؤشر إنجاز</span>
-        <span class="chip">حفظ تلقائي</span>
+        <span class="chip" data-i18n="chipSearch">بحث سريع</span>
+        <span class="chip" data-i18n="chipFilter">تصفية</span>
+        <span class="chip" data-i18n="chipProgress">تقدم مرئي</span>
+        <span class="chip" data-i18n="chipAutosave">حفظ تلقائي</span>
       </div>
     </header>
 
-    <!-- Add Task Form -->
     <form id="task-form" class="panel task-form" novalidate>
       <div class="form-group">
-        <label for="task-title">عنوان المهمة</label>
+        <label for="task-title" data-i18n="taskTitleLabel">عنوان المهمة</label>
         <input
           id="task-title"
           type="text"
+          data-i18n-placeholder="taskTitlePlaceholder"
           placeholder="اكتب مهمة جديدة..."
           autocomplete="off"
         />
       </div>
 
-      <div class="form-group">
-        <label for="task-priority">الأولوية</label>
-        <select id="task-priority">
-          <option value="low">Low</option>
-          <option value="medium">Medium</option>
-          <option value="high">High</option>
-        </select>
-      </div>
+      <fieldset class="form-group priority-group">
+        <legend data-i18n="priorityLabel">الأولوية</legend>
+        <div class="priority-picker" role="radiogroup" aria-labelledby="priority-legend">
+          <label class="priority-option priority-option--low">
+            <input type="radio" name="task-priority" value="low" />
+            <span data-i18n="priorityLow">منخفضة</span>
+          </label>
+          <label class="priority-option priority-option--medium">
+            <input type="radio" name="task-priority" value="medium" checked />
+            <span data-i18n="priorityMedium">متوسطة</span>
+          </label>
+          <label class="priority-option priority-option--high">
+            <input type="radio" name="task-priority" value="high" />
+            <span data-i18n="priorityHigh">عالية</span>
+          </label>
+        </div>
+      </fieldset>
 
       <button type="submit" class="btn btn--primary">
         <span class="btn__icon">+</span>
-        <span>إضافة المهمة</span>
+        <span data-i18n="addTask">إضافة المهمة</span>
       </button>
     </form>
 
-    <!-- Messages -->
     <div
       id="message-area"
       class="message-area"
@@ -108,49 +151,47 @@
       hidden
     ></div>
 
-    <!-- Loading -->
     <div
       id="loading-area"
       class="loading-area"
       role="status"
       aria-live="polite"
       hidden
+      data-i18n="loading"
     >
       جارٍ التحميل ...
     </div>
 
-    <!-- Dashboard -->
     <section class="dashboard">
 
-      <!-- Stats + Progress -->
       <div class="panel stats-panel">
         <div class="section-head">
-          <h2>نظرة عامة</h2>
-          <p>إحصائيات لحظية مع نسبة الإنجاز الكلية</p>
+          <h2 data-i18n="overviewTitle">نظرة عامة</h2>
+          <p data-i18n="overviewSubtitle">إحصائيات لحظية مع نسبة الإنجاز</p>
         </div>
 
         <div class="overview-grid">
-          <div class="stats" aria-label="إحصائيات المهام">
+          <div class="stats" aria-label="stats">
             <article class="stats__card stats__card--total">
-              <span class="stats__label">العدد الإجمالي</span>
+              <span class="stats__label" data-i18n="statsTotal">العدد الإجمالي</span>
               <strong id="stats-total">0</strong>
-              <span class="stats__hint">كل المهام المسجلة</span>
+              <span class="stats__hint" data-i18n="statsTotalHint">كل المهام المسجلة</span>
             </article>
 
             <article class="stats__card stats__card--completed">
-              <span class="stats__label">المهام المكتملة</span>
+              <span class="stats__label" data-i18n="statsCompleted">المهام المكتملة</span>
               <strong id="stats-completed">0</strong>
-              <span class="stats__hint">ما تم إنجازه</span>
+              <span class="stats__hint" data-i18n="statsCompletedHint">ما تم إنجازه</span>
             </article>
 
             <article class="stats__card stats__card--remaining">
-              <span class="stats__label">المهام المتبقية</span>
+              <span class="stats__label" data-i18n="statsRemaining">المهام المتبقية</span>
               <strong id="stats-remaining">0</strong>
-              <span class="stats__hint">ما زال قيد العمل</span>
+              <span class="stats__hint" data-i18n="statsRemainingHint">ما زال قيد العمل</span>
             </article>
           </div>
 
-          <div class="progress-ring" role="img" aria-label="نسبة الإنجاز الكلية">
+          <div class="progress-ring" role="img" aria-label="progress">
             <svg viewBox="0 0 120 120" aria-hidden="true">
               <defs>
                 <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -159,13 +200,7 @@
                 </linearGradient>
               </defs>
 
-              <circle
-                class="progress-ring__bg"
-                cx="60"
-                cy="60"
-                r="52"
-              ></circle>
-
+              <circle class="progress-ring__bg" cx="60" cy="60" r="52"></circle>
               <circle
                 id="progress-ring-circle"
                 class="progress-ring__value"
@@ -177,17 +212,16 @@
 
             <div class="progress-ring__label">
               <strong id="progress-percent">0%</strong>
-              <span>نسبة الإنجاز</span>
+              <span data-i18n="progressLabel">نسبة الإنجاز</span>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Filters -->
       <div class="panel filters-panel">
         <div class="section-head">
-          <h2>التصفية</h2>
-          <p>عرض المهام حسب الحالة</p>
+          <h2 data-i18n="filtersTitle">التصفية</h2>
+          <p data-i18n="filtersSubtitle">عرض المهام حسب الحالة</p>
         </div>
 
         <div id="filters" class="filters">
@@ -197,8 +231,8 @@
             data-filter="all"
             aria-pressed="true"
           >
-            <span class="filter-btn__label">الكل</span>
-            <span class="filter-btn__count" data-filter-count>0</span>
+            <span class="filter-btn__label" data-i18n="filterAll">الكل</span>
+            <span class="filter-btn__count" data-filter-count="all">0</span>
           </button>
 
           <button
@@ -207,8 +241,8 @@
             data-filter="completed"
             aria-pressed="false"
           >
-            <span class="filter-btn__label">المكتملة فقط</span>
-            <span class="filter-btn__count" data-filter-count>0</span>
+            <span class="filter-btn__label" data-i18n="filterCompleted">المكتملة فقط</span>
+            <span class="filter-btn__count" data-filter-count="completed">0</span>
           </button>
 
           <button
@@ -217,70 +251,73 @@
             data-filter="pending"
             aria-pressed="false"
           >
-            <span class="filter-btn__label">غير المكتملة فقط</span>
-            <span class="filter-btn__count" data-filter-count>0</span>
+            <span class="filter-btn__label" data-i18n="filterPending">غير المكتملة فقط</span>
+            <span class="filter-btn__count" data-filter-count="pending">0</span>
           </button>
         </div>
       </div>
 
     </section>
 
-    <!-- Tasks -->
     <section class="panel tasks-panel">
       <div class="section-head">
-        <h2>المهام</h2>
-        <p>بحث، ترتيب، إكمال، حذف، وتراجع</p>
+        <h2 data-i18n="tasksTitle">المهام</h2>
+        <p data-i18n="tasksSubtitle">بحث، ترتيب، إكمال، وحذف</p>
       </div>
 
       <div class="toolbar">
         <div class="toolbar__field toolbar__field--search">
-          <label for="search-input" class="sr-only">البحث في المهام</label>
+          <label for="search-input" class="sr-only" data-i18n="searchAria">البحث في المهام</label>
           <input
             id="search-input"
             type="search"
+            data-i18n-placeholder="searchPlaceholder"
             placeholder="ابحث في المهام..."
             autocomplete="off"
           />
         </div>
 
         <div class="toolbar__field">
-          <label for="sort-select" class="sr-only">ترتيب المهام</label>
+          <label for="sort-select" class="sr-only" data-i18n="sortAria">ترتيب المهام</label>
           <select id="sort-select">
-            <option value="newest">الأحدث أولًا</option>
-            <option value="oldest">الأقدم أولًا</option>
-            <option value="priority">حسب الأولوية</option>
+            <option value="newest" data-i18n="sortNewest">الأحدث أولًا</option>
+            <option value="oldest" data-i18n="sortOldest">الأقدم أولًا</option>
+            <option value="priority" data-i18n="sortPriority">حسب الأولوية</option>
           </select>
         </div>
 
         <button id="clear-completed" class="btn btn--ghost" type="button">
-          مسح المكتملة
+          <span data-i18n="clearCompleted">مسح المكتملة</span>
         </button>
       </div>
 
       <div id="celebration" class="celebration" hidden>
-        <span class="celebration__icon">🎉</span>
+        <span class="celebration__icon">✦</span>
         <div>
-          <strong>عمل رائع!</strong>
-          لقد أكملت جميع مهامك الحالية.
+          <strong data-i18n="celebrationTitle">عمل رائع!</strong>
+          <span data-i18n="celebrationText">لقد أكملت جميع مهامك الحالية.</span>
         </div>
       </div>
 
-      <ul id="tasks-list" class="tasks-list" aria-label="قائمة المهام"></ul>
+      <ul id="tasks-list" class="tasks-list" aria-label="tasks"></ul>
 
-      <p id="empty-state" class="empty-state" hidden>
+      <p id="empty-state" class="empty-state" hidden data-i18n="emptyState">
         لا توجد مهام لعرضها.
       </p>
     </section>
 
     <footer class="app__footer">
-      <span>يتم الحفظ تلقائيًا في هذا المتصفح</span>
+      <span data-i18n="footerSave">يتم الحفظ تلقائيًا في هذا المتصفح</span>
       <span class="footer-sep">•</span>
-      <span>اضغط <kbd>/</kbd> للانتقال إلى البحث</span>
+      <span>
+        <span data-i18n="footerSearch">اضغط</span>
+        <kbd>/</kbd>
+        <span data-i18n="footerSearchRest">للانتقال إلى البحث</span>
+      </span>
     </footer>
 
   </main>
 
-  <!-- Undo Toast -->
   <div
     id="toast-area"
     class="toast-area"
